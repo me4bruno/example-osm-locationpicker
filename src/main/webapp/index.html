@@ -1,0 +1,116 @@
+<html>
+  <head>
+    <title>Example OSM LocationPicker</title>
+        
+    <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+        
+    <script>
+    
+    function handler(request) {
+        document.getElementById("poiAddress").value = request.responseText;
+    }
+    
+    function init(){
+        var proj4326 = new OpenLayers.Projection("EPSG:4326");
+        var projmerc = new OpenLayers.Projection("EPSG:900913");
+
+        var mapCenterPositionAsLonLat = new OpenLayers.LonLat(9.99494, 53.55479);
+        var mapCenterPositionAsMercator = mapCenterPositionAsLonLat.transform(proj4326, projmerc);
+        var mapZoom = 5;
+
+        map = new OpenLayers.Map("locationPickerMap", {
+    			controls: [
+    				new OpenLayers.Control.KeyboardDefaults(),
+    				new OpenLayers.Control.Navigation(),
+    	            new OpenLayers.Control.LayerSwitcher({'ascending':false}),
+    				new OpenLayers.Control.PanZoomBar(),
+                    new OpenLayers.Control.MousePosition()
+                ],
+    			maxExtent:
+                    new OpenLayers.Bounds(-20037508.34,-20037508.34,
+                                           20037508.34, 20037508.34),
+    			numZoomLevels: 18,
+                maxResolution: 156543,
+                units: 'm',
+                projection: projmerc,
+                displayProjection: proj4326
+        } );
+
+        var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+        map.addLayer(mapnikLayer);
+
+        map.setCenter(mapCenterPositionAsMercator, mapZoom);
+        
+        // we want opaque external graphics and non-opaque internal graphics
+        var layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+        layer_style.fillOpacity = 0.2;
+        layer_style.graphicOpacity = 1;
+
+        var vectorLayer = new OpenLayers.Layer.Vector("Location Marker", {style: layer_style});
+
+        // create a point feature
+        var style_blue = OpenLayers.Util.extend({}, layer_style);
+        style_blue.strokeColor = "blue";
+        style_blue.fillColor = "blue";
+        style_blue.graphicName = "star";
+        style_blue.pointRadius = 10;
+        style_blue.strokeWidth = 3;
+        style_blue.rotation = 45;
+        style_blue.strokeLinecap = "butt";
+
+        var point = new OpenLayers.Geometry.Point(mapCenterPositionAsMercator.lon, mapCenterPositionAsMercator.lat);
+        var pointFeature = new OpenLayers.Feature.Vector(point,null,style_blue);
+
+        map.addLayer(vectorLayer);
+        vectorLayer.addFeatures([pointFeature]);
+        
+        var dragFeature = new OpenLayers.Control.DragFeature(vectorLayer, 
+				{ 
+        			onComplete:	function( feature, pixel ) {
+        			 	var selectedPositionAsLonLat = new OpenLayers.LonLat(point.x, point.y).transform(projmerc, proj4326);
+        				
+        				document.getElementById("poiLatitude").value = selectedPositionAsLonLat.lat;
+        		    	document.getElementById("poiLongitude").value = selectedPositionAsLonLat.lon;
+        				
+					    var request = OpenLayers.Request.GET({
+					        url: "address",
+					        params: {lon: selectedPositionAsLonLat.lon, lat: selectedPositionAsLonLat.lat },
+					        callback: handler
+					    });
+        			}
+   				}
+        );
+        map.addControl(dragFeature);
+        dragFeature.activate();
+    }
+
+    </script>
+  </head>
+  <body onload="init();">
+       <h1>Sehensw&uuml;rdigkeit anlegen</h1>
+       <div id="locationPickerMap" style="width:500px; height:400px; "></div>
+       
+       <form action="poi" method="post">
+       		<div>
+		       <b>Name: </b>
+		       <input id="poiName" name="poiName" type="text" size="50"/>
+       		</div>
+       		<div>
+			   <b>Adresse: </b>
+		       <input id="poiAddress" name="poiAddress" type="text" size="50" readonly="readonly"/>
+       		</div>
+       		<div>
+			   <b>Longitude: </b>
+		       <input id="poiLongitude" name="poiLongitude" type="text" size="50" readonly="readonly"/>
+       		</div>
+       		<div>
+			   <b>Latitude: </b>
+		       <input id="poiLatitude" name="poiLatitude" type="text" size="50" readonly="readonly"/>
+       		</div>
+	       <div>
+		       <input type="submit" value="Abschicken" />
+	       </div>
+       </form>
+  </body>
+</html>
