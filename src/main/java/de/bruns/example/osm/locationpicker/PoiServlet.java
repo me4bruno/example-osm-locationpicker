@@ -12,7 +12,7 @@ public class PoiServlet extends HttpServlet {
    private static final long serialVersionUID = 4581952804038449353L;
 
    @Override
-   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
       String name = request.getParameter("poiName");
       String address = request.getParameter("poiAddress");
       String lat = request.getParameter("poiLatitude");
