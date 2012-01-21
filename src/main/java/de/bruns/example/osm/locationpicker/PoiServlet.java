@@ -19,6 +19,9 @@ public class PoiServlet extends HttpServlet {
       String poiAddress = name + " (" + lon + "," + lat + ") => " + address;
       
       System.out.println("Sehenswürdigkeit erstellt: " + poiAddress);
-      response.getWriter().write("Danke - viel Spaß bei: " + poiAddress);
+
+      response.setContentType("text/plain");
+      response.setCharacterEncoding("UTF-8");
+      response.getWriter().write("Danke - viel Spa&szlig; bei:<br> " + poiAddress);
    }
 }
