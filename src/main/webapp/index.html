@@ -36,8 +36,8 @@
                 displayProjection: proj4326
         } );
 
-        var osmLayer = new OpenLayers.Layer.OSM("OpenStreetMap");
-        map.addLayer(osmLayer);
+        var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+        map.addLayer(mapnikLayer);
 
         map.setCenter(mapCenterPositionAsMercator, mapZoom);
         

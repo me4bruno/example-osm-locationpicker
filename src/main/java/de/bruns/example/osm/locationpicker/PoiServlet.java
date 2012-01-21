@@ -18,7 +18,7 @@ public class PoiServlet extends HttpServlet {
       String lon = request.getParameter("poiLongitude");
       String poiAddress = name + " (" + lon + "," + lat + ") => " + address;
       
-      System.out.println("Sehenswürdigkeit erstellt: " + poiAddress);
-      response.getWriter().write("Danke - viel Spaß bei: " + poiAddress);
+      System.out.println("Sehensw√ºrdigkeit erstellt: " + poiAddress);
+      response.getWriter().write("Danke - viel Spa√ü bei: " + poiAddress);
    }
 }
