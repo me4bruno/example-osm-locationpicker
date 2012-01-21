@@ -20,8 +20,8 @@ public class PoiServlet extends HttpServlet {
       
       System.out.println("Sehenswürdigkeit erstellt: " + poiAddress);
 
-      response.setContentType("text/plain");
+      response.setContentType("text/html");
       response.setCharacterEncoding("UTF-8");
-      response.getWriter().write("Danke - viel Spa&szlig; bei:<br> " + poiAddress);
+      response.getWriter().write("<html><body>Danke - viel Spa&szlig; bei:<br> " + poiAddress + "</body></html>");
    }
 }
