@@ -3,22 +3,28 @@
     <title>Example OSM LocationPicker</title>
         
     <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
         
     <script>
     
     function handler(request) {
         document.getElementById("poiAddress").value = request.responseText;
+        googleMarker.setTitle(request.responseText);
+        googleInfoWindow.setContent('<div id="content">' + request.responseText +'</div>');
     }
     
     function init(){
+    	var latitude = 53.07621;
+    	var longitude = 8.80755;
+    	
         var proj4326 = new OpenLayers.Projection("EPSG:4326");
         var projmerc = new OpenLayers.Projection("EPSG:900913");
 
-        var mapCenterPositionAsLonLat = new OpenLayers.LonLat(8.80755, 53.07621);
+        var mapCenterPositionAsLonLat = new OpenLayers.LonLat(longitude, latitude);
         var mapCenterPositionAsMercator = mapCenterPositionAsLonLat.transform(proj4326, projmerc);
         var mapZoom = 15;
 
-        map = new OpenLayers.Map("locationPickerMap", {
+        osmMap = new OpenLayers.Map("locationPickerMap", {
     			controls: [
     				new OpenLayers.Control.KeyboardDefaults(),
     				new OpenLayers.Control.Navigation(),
@@ -37,12 +43,12 @@
         } );
 
         var osmLayer = new OpenLayers.Layer.OSM("OpenStreetMap");
-        map.addLayer(osmLayer);
+        osmMap.addLayer(osmLayer);
 
-        map.setCenter(mapCenterPositionAsMercator, mapZoom);
+        osmMap.setCenter(mapCenterPositionAsMercator, mapZoom);
         
         var locationPickerLayer = new OpenLayers.Layer.Vector("LocationPicker Marker");
-        map.addLayer(locationPickerLayer);
+        osmMap.addLayer(locationPickerLayer);
         
         var locationPickerPoint = new OpenLayers.Geometry.Point(mapCenterPositionAsMercator.lon, mapCenterPositionAsMercator.lat);
         var locationPickerMarkerStyle = {externalGraphic: 'poi.png', graphicHeight: 37, graphicWidth: 32, graphicYOffset: -37, graphicXOffset: -16 };
@@ -57,6 +63,10 @@
         				
         				document.getElementById("poiLatitude").value = selectedPositionAsLonLat.lat;
         		    	document.getElementById("poiLongitude").value = selectedPositionAsLonLat.lon;
+        		    	
+        		    	var googlePosition = new google.maps.LatLng(selectedPositionAsLonLat.lat, selectedPositionAsLonLat.lon);
+        		    	googleMap.setCenter(googlePosition);
+        		    	googleMarker.setPosition(googlePosition);
         				
 					    var request = OpenLayers.Request.GET({
 					        url: "address",
@@ -66,15 +76,26 @@
         			}
    				}
         );
-        map.addControl(dragFeature);
+        osmMap.addControl(dragFeature);
         dragFeature.activate();
+        
+        // google maps
+        var myLatlng = new google.maps.LatLng(latitude, longitude);
+        var myOptions = { zoom: mapZoom, center: myLatlng, mapTypeId: google.maps.MapTypeId.ROADMAP };
+        googleMap = new google.maps.Map(document.getElementById("googleMap"), myOptions);
+    	googleMarker = new google.maps.Marker({ position: myLatlng, map: googleMap, title: 'Google Marker'});
+    	googleInfoWindow = new google.maps.InfoWindow({ content: '<div id="content">Verschiebe den OSM-Marker !</div>'});
+    	googleInfoWindow.open(googleMap,googleMarker);
     }
 
     </script>
   </head>
   <body onload="init();">
        <h1>Sehensw&uuml;rdigkeit anlegen</h1>
-       <div id="locationPickerMap" style="width:500px; height:400px;"></div>
+       
+	   <div id="locationPickerMap" style="width:500px; height:500px; float: left;"></div>
+	   <div id="googleMap" style="width:500px; height:500px;"></div>
+
 	   <form action="poi" method="post">
 	       <table>
 	       		<tr>
