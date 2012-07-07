@@ -24,6 +24,11 @@
             <artifactId>servlet-api</artifactId>
             <version>${servlet-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>8.1.4.v20120524</version>
+        </dependency>        
     </dependencies>
 
 	<build>
